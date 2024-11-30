@@ -8,7 +8,6 @@ use App\Application\Query\ListUsers\ListUsersQuery;
 use App\Domain\Shared\ValueObject\Email;
 use App\Domain\Shared\ValueObject\UniqId;
 use App\Domain\User;
-use App\Domain\User\Repository\UserRepositoryInterface;
 use App\Infrastructure\Doctrine\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -32,10 +31,9 @@ class UserControllerTest extends WebTestCase{
         $container    = self::$client->getContainer();
 
         // Reference message buses
-        self::$commandBus = $container->get('command.bus');
-        self::$queryBus   = $container->get('query.bus');
-        /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
-        self::$userRepository = $container->get(UserRepositoryInterface::class);
+        self::$commandBus     = $container->get('command.bus');
+        self::$queryBus       = $container->get('query.bus');
+        self::$userRepository = $container->get(UserRepository::class);
 
         self::$userRepository->clear();
         self::$userId = self::createDummyUsers();

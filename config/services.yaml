@@ -43,3 +43,7 @@ services:
     App\Infrastructure\Messenger\MessageHandler\QueryHandlerInterface:
       tags:
         - { name: messenger.message_handler, bus: query.bus }
+
+  App\Infrastructure\Doctrine\Repository\UserRepository:
+    public: true
+    autowire: true

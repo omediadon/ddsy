@@ -6,9 +6,16 @@ use App\Infrastructure\Doctrine\Repository\UserRepository;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use function is_null;
 
 class UniqueEmailValidator extends ConstraintValidator{
-    public function __construct(private readonly UserRepository $userRepository,){}
+    public function __construct(private ?UserRepository $userRepository = null,){
+        if(is_null($this->userRepository)){
+            global $kernel;
+            $this->userRepository = $kernel->getContainer()
+                                           ->get(UserRepository::class);
+        }
+    }
 
     public function validate($value, Constraint $constraint,): void{
         if(!$constraint instanceof UniqueEmail){
