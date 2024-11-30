@@ -78,4 +78,8 @@ readonly class UserRepository implements UserRepositoryInterface{
                   ->getSingleScalarResult();
     }
 
+    public function clear(): void {
+        $this->createQueryBuilder()->delete()->getQuery()->execute();
+    }
+
 }
