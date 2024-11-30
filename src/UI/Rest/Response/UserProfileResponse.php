@@ -14,7 +14,7 @@ final readonly class UserProfileResponse implements JsonSerializable{
         private DateTimeImmutable $createdAt,
     ){}
 
-    public static function fromUserEntity(User $user,){
+    public static function fromUserEntity(User $user,): self{
         return new self(id: $user->id()
                                  ->toString(), email: $user->email()
                                                            ->toString(), name: $user->name(), createdAt: $user->createdAt());

@@ -8,8 +8,9 @@ use App\Domain\User;
 use App\Domain\User\Repository\UserRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use function key_exists;
 
-class DoctrineUserRepository implements UserRepositoryInterface{
+readonly class UserRepository implements UserRepositoryInterface{
     public function __construct(
         private EntityManagerInterface $entityManager,
     ){}
@@ -43,13 +44,13 @@ class DoctrineUserRepository implements UserRepositoryInterface{
     ): array{
         $qb = $this->createQueryBuilder();
 
-        if(isset($criteria['search'])){
+        if(key_exists("search",$criteria)){
             $qb->andWhere('u.name LIKE :search OR u.email LIKE :search')
                ->setParameter('search', '%' . $criteria['search'] . '%');
         }
 
         if($sortBy){
-            $qb->orderBy('u.' . $sortBy, $sortDirection);
+            $qb->orderBy( 'u.'.$sortBy, $sortDirection);
         }
 
         return $qb->setFirstResult(($page - 1) * $perPage)
@@ -68,7 +69,7 @@ class DoctrineUserRepository implements UserRepositoryInterface{
         $qb = $this->createQueryBuilder('u')
                    ->select('COUNT(u.id)');
 
-        if(isset($criteria['search'])){
+        if(key_exists("search",$criteria)){
             $qb->andWhere('u.name LIKE :search OR u.email LIKE :search')
                ->setParameter('search', '%' . $criteria['search'] . '%');
         }

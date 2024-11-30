@@ -7,3 +7,4 @@ final readonly class GetUserProfileQuery{
         public string $userId,
     ){}
 }
+

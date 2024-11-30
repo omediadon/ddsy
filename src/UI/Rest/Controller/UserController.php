@@ -3,7 +3,6 @@
 namespace App\UI\Rest\Controller;
 
 use App\Application\Command\CreateUser\CreateUserCommand;
-use App\Application\Query\GetUserProfile\GetUserProfileHandler;
 use App\Application\Query\GetUserProfile\GetUserProfileQuery;
 use App\Domain\User\Exception\UserNotFoundException;
 use App\UI\Rest\Request\CreateUserRequest;
@@ -19,13 +18,16 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/users')]
-final  class UserController extends AbstractController{
+final class UserController extends AbstractController{
     public function __construct(
-        private MessageBusInterface $commandBus,
-        private MessageBusInterface $queryBus,
-        private ValidatorInterface  $validator,
+        private readonly MessageBusInterface $commandBus,
+        private readonly MessageBusInterface $queryBus,
+        private readonly ValidatorInterface  $validator,
     ){}
 
+    /**
+     * @throws \Symfony\Component\Messenger\Exception\ExceptionInterface
+     */
     #[Route('', methods: ['POST'])]
     public function create(Request $request,): JsonResponse{
         $createUserRequest = CreateUserRequest::fromRequest($request);
@@ -40,7 +42,9 @@ final  class UserController extends AbstractController{
             $createUserRequest->email, $createUserRequest->name
         );
 
-        $user = $this->commandBus->dispatch($command)->last(HandledStamp::class)->getResult();
+        $user = $this->commandBus->dispatch($command)
+                                 ->last(HandledStamp::class)
+                                 ->getResult();
 
         return new JsonResponse(
             [
@@ -56,10 +60,13 @@ final  class UserController extends AbstractController{
             $query   = new GetUserProfileQuery($id);
             $profile = $this->queryBus->dispatch($query);
 
-            return new JsonResponse($profile->last(HandledStamp::class)->getResult());
+            $result = $profile->last(HandledStamp::class)
+                              ->getResult();
+
+            return new JsonResponse($result, Response::HTTP_OK);
         }
-        catch(UserNotFoundException|ExceptionInterface $e){
-            throw $this->createNotFoundException('User not found');
+        catch(UserNotFoundException|ExceptionInterface){
+            return $this->json(["error" => 'User not found'], Response::HTTP_NOT_FOUND);
         }
     }
 
@@ -82,10 +89,11 @@ final  class UserController extends AbstractController{
             );
         }
 
-        $response = $this->queryBus->dispatch(
-            $listUsersRequest->toListUsersQuery()
-        );
+        $response = $this->queryBus->dispatch($listUsersRequest->toListUsersQuery());
 
-        return new JsonResponse($response->last(HandledStamp::class)->getResult());
+        return new JsonResponse(
+            $response->last(HandledStamp::class)
+                     ->getResult()
+        );
     }
 }
