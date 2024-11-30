@@ -53,13 +53,11 @@ jobs:
 
     # Prepare database
     - name: Create and Migrate Test Database
-      run: |
-        php bin/console doctrine:database:create --env=test --no-interaction
-        php bin/console doctrine:migrations:migrate --env=test --no-interaction
+      run: composer database:migrate:all
 
     # Run tests
     - name: Run PHPUnit Tests
-      run: vendor/bin/phpunit
+      run: composer test
 
     # Will Add Later: Run static analysis
     #- name: Run PHPStan
