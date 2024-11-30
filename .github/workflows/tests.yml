@@ -1,0 +1,70 @@
+name: DDSY Project CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  symfony-tests:
+    runs-on: ubuntu-22.04
+    
+    services:
+      mysql:
+        image: mysql:8.0.40
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: adb
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql
+        coverage: xdebug
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install Dependencies
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+    # Configure environment
+    - name: Prepare Test Environment
+      run: |
+        cp .env.test .env.test.local
+        sed -i 's/127.0.0.1/mysql/g' .env.test.local
+
+    # Prepare database
+    - name: Create and Migrate Test Database
+      run: |
+        php bin/console doctrine:database:create --env=test --no-interaction
+        php bin/console doctrine:migrations:migrate --env=test --no-interaction
+
+    # Run tests
+    - name: Run PHPUnit Tests
+      run: vendor/bin/phpunit
+
+    # Will Add Later: Run static analysis
+    #- name: Run PHPStan
+    #  run: vendor/bin/phpstan analyse src tests
+
+    # Will Add Later: Check coding standards
+    #- name: Run PHP CodeSniffer
+    #  run: vendor/bin/phpcs src tests --standard=PSR12
