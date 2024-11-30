@@ -5,12 +5,13 @@ namespace App\Application\Query\GetUserProfile;
 use App\Domain\Shared\ValueObject\UniqId;
 use App\Domain\User\Exception\UserNotFoundException;
 use App\Domain\User\Repository\UserRepositoryInterface;
+use App\Infrastructure\Messenger\MessageHandler\QueryHandlerInterface;
 use App\UI\Rest\Response\UserProfileResponse;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\HandleTrait;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-final  class GetUserProfileHandler {
+final  class GetUserProfileHandler implements QueryHandlerInterface{
     use HandleTrait;
 
     public function __construct(

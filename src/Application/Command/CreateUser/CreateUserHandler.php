@@ -6,10 +6,11 @@ use App\Domain\Shared\ValueObject\Email;
 use App\Domain\User;
 use App\Domain\User\Event\UserCreated;
 use App\Domain\User\Repository\UserRepositoryInterface;
+use App\Infrastructure\Messenger\MessageHandler\CommandHandlerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-final readonly class CreateUserHandler{
+final readonly class CreateUserHandler implements CommandHandlerInterface{
     public function __construct(
         private UserRepositoryInterface $userRepository,
         private MessageBusInterface     $eventBus,
