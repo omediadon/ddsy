@@ -15,9 +15,11 @@ final readonly class UserProfileResponse implements JsonSerializable{
     ){}
 
     public static function fromUserEntity(User $user,): self{
-        return new self(id: $user->id()
-                                 ->toString(), email: $user->email()
-                                                           ->toString(), name: $user->name(), createdAt: $user->createdAt());
+        return new self(
+            id: $user->id()
+                     ->toString(), email: $user->email()
+                                               ->toString(), name: $user->name(), createdAt: $user->createdAt()
+        );
     }
 
     public function jsonSerialize(): array{

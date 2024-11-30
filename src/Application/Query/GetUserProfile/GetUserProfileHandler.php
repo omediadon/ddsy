@@ -31,6 +31,6 @@ final  class GetUserProfileHandler implements QueryHandlerInterface{
             throw new UserNotFoundException();
         }
 
-        return  UserProfileResponse::fromUserEntity($user);
+        return UserProfileResponse::fromUserEntity($user);
     }
 }

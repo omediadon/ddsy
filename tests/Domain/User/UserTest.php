@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 class UserTest extends TestCase{
     public function testCreateUser(): void{
         $email = Email::fromString('test@example.com');
-        $name = 'John Doe';
+        $name  = 'John Doe';
 
         $user = User::create($email, $name);
 

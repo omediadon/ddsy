@@ -8,37 +8,14 @@ use App\Domain\User\Repository\UserRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class UserRepositoryTest extends KernelTestCase
-{
-    private EntityManagerInterface $entityManager;
+class UserRepositoryTest extends KernelTestCase{
+    private EntityManagerInterface  $entityManager;
     private UserRepositoryInterface $userRepository;
 
-    protected function setUp(): void
-    {
-        self::bootKernel();
-        $this->entityManager = static::getContainer()->get('doctrine')->getManager();
-        $this->userRepository = static::getContainer()->get(UserRepositoryInterface::class);
-
-        // Begin transaction
-        $this->entityManager->beginTransaction();
-    }
-
-    protected function tearDown(): void
-    {
-        // Rollback transaction
-        if ($this->entityManager->getConnection()->isTransactionActive()) {
-            $this->entityManager->rollback();
-        }
-
-        $this->entityManager->close();
-        parent::tearDown();
-    }
-
-    public function testSaveAndFindUser(): void
-    {
+    public function testSaveAndFindUser(): void{
         // Create a new user
         $email = Email::fromString('test969@example.com');
-        $user = User::create($email, 'John Doe');
+        $user  = User::create($email, 'John Doe');
 
         // Save the user
         $this->userRepository->save($user);
@@ -56,11 +33,10 @@ class UserRepositoryTest extends KernelTestCase
         $this->assertEquals($user->name(), $foundUser->name());
     }
 
-    public function testFindByEmail(): void
-    {
+    public function testFindByEmail(): void{
         // Create and save a user
         $email = Email::fromString('test696@example.com');
-        $user = User::create($email, 'John Doe');
+        $user  = User::create($email, 'John Doe');
         $this->userRepository->save($user);
         $this->entityManager->flush();
 
@@ -72,5 +48,28 @@ class UserRepositoryTest extends KernelTestCase
 
         $this->assertNotNull($foundUser);
         $this->assertEquals($user->email(), $foundUser->email());
+    }
+
+    protected function setUp(): void{
+        self::bootKernel();
+        $this->entityManager  = static::getContainer()
+                                      ->get('doctrine')
+                                      ->getManager();
+        $this->userRepository = static::getContainer()
+                                      ->get(UserRepositoryInterface::class);
+
+        // Begin transaction
+        $this->entityManager->beginTransaction();
+    }
+
+    protected function tearDown(): void{
+        // Rollback transaction
+        if($this->entityManager->getConnection()
+                               ->isTransactionActive()){
+            $this->entityManager->rollback();
+        }
+
+        $this->entityManager->close();
+        parent::tearDown();
     }
 }

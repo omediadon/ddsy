@@ -45,11 +45,8 @@ final readonly class ListUsersRequest{
     }
 
     public function toListUsersQuery(): ListUsersQuery{
-        return new ListUsersQuery(page         : $this->page,
-                                  perPage      : $this->perPage,
-                                  searchTerm   : $this->searchTerm,
-                                  sortBy       : $this->sortBy,
-                                  sortDirection: $this->sortDirection
+        return new ListUsersQuery(
+            page: $this->page, perPage: $this->perPage, searchTerm: $this->searchTerm, sortBy: $this->sortBy, sortDirection: $this->sortDirection
         );
     }
 }

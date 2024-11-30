@@ -44,13 +44,13 @@ readonly class UserRepository implements UserRepositoryInterface{
     ): array{
         $qb = $this->createQueryBuilder();
 
-        if(key_exists("search",$criteria)){
+        if(key_exists("search", $criteria)){
             $qb->andWhere('u.name LIKE :search OR u.email LIKE :search')
                ->setParameter('search', '%' . $criteria['search'] . '%');
         }
 
         if($sortBy){
-            $qb->orderBy( 'u.'.$sortBy, $sortDirection);
+            $qb->orderBy('u.' . $sortBy, $sortDirection);
         }
 
         return $qb->setFirstResult(($page - 1) * $perPage)
@@ -69,7 +69,7 @@ readonly class UserRepository implements UserRepositoryInterface{
         $qb = $this->createQueryBuilder('u')
                    ->select('COUNT(u.id)');
 
-        if(key_exists("search",$criteria)){
+        if(key_exists("search", $criteria)){
             $qb->andWhere('u.name LIKE :search OR u.email LIKE :search')
                ->setParameter('search', '%' . $criteria['search'] . '%');
         }
@@ -78,8 +78,11 @@ readonly class UserRepository implements UserRepositoryInterface{
                   ->getSingleScalarResult();
     }
 
-    public function clear(): void {
-        $this->createQueryBuilder()->delete()->getQuery()->execute();
+    public function clear(): void{
+        $this->createQueryBuilder()
+             ->delete()
+             ->getQuery()
+             ->execute();
     }
 
 }
