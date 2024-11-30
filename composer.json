@@ -1,4 +1,6 @@
 {
+  "name": "omediadon/ddsy",
+  "description": "This is a demo project for DDD infrastructure with Symfony 7. This is a proof of concept and a learning point.",
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",
