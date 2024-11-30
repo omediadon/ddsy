@@ -2,6 +2,7 @@
 
 namespace App\UI\Rest\Request;
 
+use App\Infrastructure\Validator as AppAssert;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -9,6 +10,7 @@ final readonly class CreateUserRequest{
     public function __construct(
         #[Assert\NotBlank]
         #[Assert\Email]
+        #[AppAssert\UniqueEmail]
         public string $email,
 
         #[Assert\NotBlank]
