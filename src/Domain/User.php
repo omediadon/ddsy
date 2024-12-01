@@ -10,8 +10,9 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class User implements PasswordAuthenticatedUserInterface, UserInterface{
-    private ?string $passwordHash = null;
+class User implements UserInterface, PasswordAuthenticatedUserInterface{
+
+    private string $password;
 
     private function __construct(
         private readonly UniqId            $id,
@@ -55,18 +56,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface{
         $this->role = $newRole;
     }
 
-    public function setPassword(string $plainPassword, UserPasswordHasherInterface $passwordHasher,): void{
-        $this->passwordHash = $passwordHasher->hashPassword($this, $plainPassword);
-    }
-
-    public function getPassword(): ?string{
-        return $this->getPasswordHash();
-    }
-
-    public function getPasswordHash(): ?string{
-        return $this->passwordHash;
-    }
-
     public function getRoles(): array{
         return ['ROLE_' . strtoupper($this->role()->value)];
     }
@@ -84,5 +73,13 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface{
 
     public function id(): UniqId{
         return $this->id;
+    }
+
+    public function getPassword(): ?string{
+        return $this->password;
+    }
+
+    public function setPassword(string $plainPassword, UserPasswordHasherInterface $passwordHasher,): void{
+        $this->password = $passwordHasher->hashPassword($this, $plainPassword);
     }
 }

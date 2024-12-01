@@ -6,15 +6,31 @@ security:
     providers:
         users_in_memory: { memory: null }
 
+
+
         our_database_users:
-            entity: { class: App\Domain\User }
+            entity:
+                class: App\Domain\User
+                property: email
+
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
-            lazy: true
-            provider: users_in_memory
+
+        login:
+            pattern: ^/api/auth/(login|register)
+            security: false
+
+        api:
+            pattern: ^/api
+            security: true
+            provider: our_database_users
+            custom_authenticator: App\Infrastructure\Security\JwtAuthenticator
+#        main:
+#            lazy: true
+#            provider: users_in_memory
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -25,6 +41,7 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/api/me, roles: ROLE_CUSTOMER }
     # - { path: ^/admin, roles: ROLE_ADMIN }
     # - { path: ^/profile, roles: ROLE_USER }
 

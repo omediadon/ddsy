@@ -2,6 +2,9 @@
     Options +FollowSymlinks
     RewriteEngine On
 
+  RewriteCond %{HTTP:Authorization} ^(.*)
+  RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
+
    # tous les fichiers avec .quelquechose sont sautés
    RewriteCond %{REQUEST_URI} \..+$
    RewriteCond %{REQUEST_URI} !\.html$

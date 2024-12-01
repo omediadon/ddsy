@@ -9,6 +9,7 @@
     </id>
     <field name="email" type="email" column="email" unique="true"/>
     <field name="name" column="name"/>
+    <field name="password" column="password"/>
     <field name="role" column="role" enum-type="App\Domain\Shared\ValueObject\Role"/>
     <field name="createdAt" type="datetime_immutable" column="created_at"/>
   </entity>

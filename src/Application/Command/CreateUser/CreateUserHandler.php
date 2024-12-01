@@ -9,11 +9,13 @@ use App\Domain\User\Repository\UserRepositoryInterface;
 use App\Infrastructure\Messenger\MessageHandler\CommandHandlerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final readonly class CreateUserHandler implements CommandHandlerInterface{
     public function __construct(
-        private UserRepositoryInterface $userRepository,
-        private MessageBusInterface     $eventBus,
+        private UserRepositoryInterface     $userRepository,
+        private MessageBusInterface         $eventBus,
+        private UserPasswordHasherInterface $passwordHasher,
     ){}
 
     /**
@@ -25,6 +27,8 @@ final readonly class CreateUserHandler implements CommandHandlerInterface{
             Email::fromString($command->email),
             $command->name
         );
+
+        $user->setPassword($command->password, $this->passwordHasher);
 
         $this->userRepository->save($user);
 
