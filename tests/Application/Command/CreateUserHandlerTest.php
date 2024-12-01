@@ -9,19 +9,19 @@ use App\Domain\User\Repository\UserRepositoryInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class CreateUserHandlerTest extends TestCase{
-    private UserRepositoryInterface $userRepository;
-    private MessageBusInterface     $eventBus;
-    private CreateUserHandler       $handler;
+    private UserRepositoryInterface     $userRepository;
+    private MessageBusInterface         $eventBus;
+    private CreateUserHandler           $handler;
+    private UserPasswordHasherInterface $hasher;
 
     /**
      * @throws \Symfony\Component\Messenger\Exception\ExceptionInterface
      */
     public function testCreateUser(): void{
-        $command = new CreateUserCommand(
-            'test@example.com', 'John Doe'
-        );
+        $command = new CreateUserCommand('test@example.com', 'John Doe', "password",);
 
         $this->userRepository->expects($this->once())
                              ->method('save');
@@ -47,8 +47,9 @@ class CreateUserHandlerTest extends TestCase{
     protected function setUp(): void{
         $this->userRepository = $this->createMock(UserRepositoryInterface::class);
         $this->eventBus       = $this->createMock(MessageBusInterface::class);
+        $this->hasher         = $this->createMock(UserPasswordHasherInterface::class);
         $this->handler        = new CreateUserHandler(
-            $this->userRepository, $this->eventBus
+            $this->userRepository, $this->eventBus, $this->hasher
         );
     }
 }

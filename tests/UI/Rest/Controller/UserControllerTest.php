@@ -9,10 +9,12 @@ use App\Domain\Shared\ValueObject\Email;
 use App\Domain\Shared\ValueObject\Role;
 use App\Domain\User;
 use App\Infrastructure\Doctrine\Repository\UserRepository;
+use App\Infrastructure\Security\JwtTokenService;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use function json_decode;
 use function json_encode;
 
@@ -20,11 +22,12 @@ class UserControllerTest extends WebTestCase{
     /**
      * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
      */
-    private static KernelBrowser       $client;
-    private static MessageBusInterface $commandBus;
-    private static MessageBusInterface $queryBus;
-    private static UserRepository      $userRepository;
-    private static User                $user;
+    private static KernelBrowser               $client;
+    private static MessageBusInterface         $commandBus;
+    private static MessageBusInterface         $queryBus;
+    private static UserRepository              $userRepository;
+    private static User                        $user;
+    private static UserPasswordHasherInterface $hasher;
 
     public function setUp(): void{
         self::$client = static::createClient();
@@ -34,6 +37,8 @@ class UserControllerTest extends WebTestCase{
         self::$commandBus     = $container->get('command.bus');
         self::$queryBus       = $container->get('query.bus');
         self::$userRepository = $container->get(UserRepository::class);
+        self::$hasher         = static::getContainer()
+                                      ->get(UserPasswordHasherInterface::class);
 
         self::$userRepository->clear();
         self::$user = self::createDummyUsers();
@@ -43,9 +48,14 @@ class UserControllerTest extends WebTestCase{
 
     private static function createDummyUsers(): User{
         $user = User::create(Email::fromString('mail@something.com'), 'Some Cool Name', Role::ADMIN);
+        $user->setPassword('password', self::$hasher);
+        $user2 = User::create(Email::fromString('mail2@something.com'), 'Some Name');
+        $user2->setPassword('password', self::$hasher);
+        $user3 = User::create(Email::fromString('mail3@something.com'), 'Cool Name');
+        $user3->setPassword('password', self::$hasher);
         self::$userRepository->save($user);
-        self::$userRepository->save(User::create(Email::fromString('mail2@something.com'), 'Some Name'));
-        self::$userRepository->save(User::create(Email::fromString('mail3@something.com'), 'Cool Name'));
+        self::$userRepository->save($user2);
+        self::$userRepository->save($user3);
 
         return $user;
     }
@@ -58,13 +68,14 @@ class UserControllerTest extends WebTestCase{
         // Arrange
         $userData = [
             'email' => 'test@example.com',
-            'name'  => 'Test User'
+            'name'  => 'Test User',
+            'password' => 'password',
         ];
 
         // Act
         self::$client->request(
             'POST',
-            '/api/users',
+            '/api/auth/register',
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
@@ -82,7 +93,7 @@ class UserControllerTest extends WebTestCase{
         $this->assertInstanceOf(CreateUserCommand::class, $dispatchedMessages[0]['message']);
         $this->assertInstanceOf(User::class, $dispatchedMessages[0]["stamps_after_dispatch"][1]->getResult());
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
-        $this->assertArrayHasKey('id', $response);
+        $this->assertArrayHasKey('tokens', $response);
     }
 
     public function testCreateUserValidationFailure(): void{
@@ -117,10 +128,17 @@ class UserControllerTest extends WebTestCase{
     public function testGetUserProfileSuccess(): void{
         // Arrange
         $userId = self::$user->id();
-        self::$client->loginUser(self::$user);
+        /**
+         * @var JwtTokenService $jwtManager
+         */
+        $jwtManager = self::getContainer()->get(JwtTokenService::class);
+        $token = $jwtManager->createAccessToken(self::$user);
 
         // Act
-        self::$client->request('GET', "/api/users/{$userId}");
+        self::$client->request('GET', "/api/users/{$userId}",[], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer ' . $token,
+            'CONTENT_TYPE' => 'application/json'
+        ]);
 
         // Prepare results
         $response           = json_decode(

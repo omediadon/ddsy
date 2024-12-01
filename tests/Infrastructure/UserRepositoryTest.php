@@ -7,15 +7,19 @@ use App\Domain\User;
 use App\Domain\User\Repository\UserRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasher;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserRepositoryTest extends KernelTestCase{
     private EntityManagerInterface  $entityManager;
     private UserRepositoryInterface $userRepository;
+    private UserPasswordHasherInterface      $hasher;
 
     public function testSaveAndFindUser(): void{
         // Create a new user
         $email = Email::fromString('test969@example.com');
         $user  = User::create($email, 'John Doe');
+        $user->setPassword('password', $this->hasher);
 
         // Save the user
         $this->userRepository->save($user);
@@ -37,6 +41,7 @@ class UserRepositoryTest extends KernelTestCase{
         // Create and save a user
         $email = Email::fromString('test696@example.com');
         $user  = User::create($email, 'John Doe');
+        $user->setPassword('password', $this->hasher);
         $this->userRepository->save($user);
         $this->entityManager->flush();
 
@@ -57,6 +62,9 @@ class UserRepositoryTest extends KernelTestCase{
                                       ->getManager();
         $this->userRepository = static::getContainer()
                                       ->get(UserRepositoryInterface::class);
+
+        $this->hasher = static::getContainer()
+                              ->get(UserPasswordHasherInterface::class);
 
         // Begin transaction
         $this->entityManager->beginTransaction();

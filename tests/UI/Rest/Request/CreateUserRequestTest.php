@@ -8,6 +8,7 @@ use App\Infrastructure\Doctrine\Repository\UserRepository;
 use App\UI\Rest\Request\CreateUserRequest;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -15,6 +16,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class CreateUserRequestTest extends KernelTestCase{
     private ValidatorInterface $validator;
     private UserRepository     $userRepository;
+    private  UserPasswordHasherInterface $hasher;
 
     public function testCreateFromValidRequest(): void{
         // Arrange
@@ -96,7 +98,9 @@ class CreateUserRequestTest extends KernelTestCase{
         $repo = self::getContainer()
                     ->get(UserRepository::class);
         $repo->clear();
-        $repo->save(User::create(Email::fromString('test@example.com'), 'Some Name'));
+        $user = User::create(Email::fromString('test@example.com'), 'Some Name');
+        $user->setPassword('password', $this->hasher);
+        $repo->save($user);
 
         // Arrange
         $content = json_encode([
@@ -141,6 +145,9 @@ class CreateUserRequestTest extends KernelTestCase{
                  return $this->validators[$className];
              }
          };*/
+
+        $this->hasher         = static::getContainer()
+                                      ->get(UserPasswordHasherInterface::class);
         $this->validator = Validation::createValidatorBuilder()
                                      ->addLoader(new AttributeLoader()) // Enable attribute support
             //                                     ->setConstraintValidatorFactory($validatorFactory)
