@@ -1,0 +1,154 @@
+{
+	"info": {
+		"_postman_id": "142f63be-f12d-416b-a8d8-f01b728ab0cd",
+		"name": "DDSY",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "8184459"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"mail@mail.com\",\r\n    \"name\": \"name\",\r\n    \"password\":\"password\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "127.0.0.1/api/auth/register",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"mail@mail.com\",\r\n    \"password\":\"password\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "127.0.0.1/api/auth/login",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Me",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "127.0.0.1/api/auth/me",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"path": [
+						"api",
+						"auth",
+						"me"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"if (pm.collectionVariables.get(\"IS_XDEBUG_ACTIVE\") == \"1\") {\r",
+					"    pm.request.headers.add({\r",
+					"        key: \"Cookie\",\r",
+					"        value: \"XDEBUG_SESSION\"\r",
+					"    });\r",
+					"}\r",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzMwODM1MDAsImV4cCI6MTczMzA4NzEwMCwic3ViIjoiMWU3ZjMxY2QtZDg3Mi00YThlLTg3NGItMjNmM2M3NWViNDE0IiwiZW1haWwiOiJvbWVkaWFkb25AZ21haWwuY29tIiwidHlwZSI6ImFjY2VzcyIsInJvbGUiOiJjdXN0b21lciJ9.Gngp_kcOo7xwNx56KAZ7h6NH60S5YuoIlJZmiAEuekQ",
+			"type": "string"
+		},
+		{
+			"key": "IS_XDEBUG_ACTIVE",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}
