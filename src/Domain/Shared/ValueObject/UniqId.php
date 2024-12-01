@@ -19,11 +19,15 @@ final readonly class UniqId{
         return new self($value);
     }
 
-    public function toString(): string{
+    public function __toString(): string{
         return $this->value;
     }
 
-    public function __toString(): string{
+    public function equals(UniqId $id,): bool{
+        return $this->toString() === $id->toString();
+    }
+
+    public function toString(): string{
         return $this->value;
     }
 }

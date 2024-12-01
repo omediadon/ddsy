@@ -6,7 +6,7 @@ use App\Application\Command\CreateUser\CreateUserCommand;
 use App\Application\Query\GetUserProfile\GetUserProfileQuery;
 use App\Application\Query\ListUsers\ListUsersQuery;
 use App\Domain\Shared\ValueObject\Email;
-use App\Domain\Shared\ValueObject\UniqId;
+use App\Domain\Shared\ValueObject\Role;
 use App\Domain\User;
 use App\Infrastructure\Doctrine\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -24,7 +24,7 @@ class UserControllerTest extends WebTestCase{
     private static MessageBusInterface $commandBus;
     private static MessageBusInterface $queryBus;
     private static UserRepository      $userRepository;
-    private static UniqId              $userId;
+    private static User                $user;
 
     public function setUp(): void{
         self::$client = static::createClient();
@@ -36,18 +36,18 @@ class UserControllerTest extends WebTestCase{
         self::$userRepository = $container->get(UserRepository::class);
 
         self::$userRepository->clear();
-        self::$userId = self::createDummyUsers();
+        self::$user = self::createDummyUsers();
 
         parent::setUp();
     }
 
-    private static function createDummyUsers(): UniqId{
-        $user = User::create(Email::fromString('mail@something.com'), 'Some Cool Name');
+    private static function createDummyUsers(): User{
+        $user = User::create(Email::fromString('mail@something.com'), 'Some Cool Name', Role::ADMIN);
         self::$userRepository->save($user);
         self::$userRepository->save(User::create(Email::fromString('mail2@something.com'), 'Some Name'));
         self::$userRepository->save(User::create(Email::fromString('mail3@something.com'), 'Cool Name'));
 
-        return $user->id();
+        return $user;
     }
 
     public function tear(): void{
@@ -116,7 +116,8 @@ class UserControllerTest extends WebTestCase{
 
     public function testGetUserProfileSuccess(): void{
         // Arrange
-        $userId = self::$userId;
+        $userId = self::$user->id();
+        self::$client->loginUser(self::$user);
 
         // Act
         self::$client->request('GET', "/api/users/{$userId}");

@@ -36,9 +36,10 @@ class CreateUserHandlerTest extends TestCase{
 
         $user = ($this->handler)($command);
 
-        $this->assertEquals($command->email,
-                            $user->email()
-                                 ->toString()
+        $this->assertEquals(
+            $command->email,
+            $user->email()
+                 ->toString()
         );
         $this->assertEquals($command->name, $user->name());
     }

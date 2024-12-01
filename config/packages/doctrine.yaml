@@ -1,5 +1,7 @@
 doctrine:
     dbal:
+        mapping_types:
+            enum: string
         types:
             email: App\Infrastructure\Doctrine\Type\EmailType
             uniqid: App\Infrastructure\Doctrine\Type\UniqIdType
@@ -12,6 +14,7 @@ doctrine:
 
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
+
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true
@@ -33,8 +36,7 @@ doctrine:
 
 when@test:
     doctrine:
-        dbal:
-            # "TEST_TOKEN" is typically set by ParaTest
+        dbal: # "TEST_TOKEN" is typically set by ParaTest
             dbname_suffix: '_test%env(default::TEST_TOKEN)%'
 
 when@prod:

@@ -11,6 +11,7 @@ final readonly class UserProfileResponse implements JsonSerializable{
         private string            $id,
         private string            $email,
         private string            $name,
+        private string            $role,
         private DateTimeImmutable $createdAt,
     ){}
 
@@ -18,7 +19,7 @@ final readonly class UserProfileResponse implements JsonSerializable{
         return new self(
             id: $user->id()
                      ->toString(), email: $user->email()
-                                               ->toString(), name: $user->name(), createdAt: $user->createdAt()
+                                               ->toString(), name: $user->name(), role: $user->role()->value, createdAt: $user->createdAt()
         );
     }
 
@@ -27,6 +28,7 @@ final readonly class UserProfileResponse implements JsonSerializable{
             'id'         => $this->id,
             'email'      => $this->email,
             'name'       => $this->name,
+            'role'       => $this->role,
             'created_at' => $this->createdAt->format('c')
         ];
     }

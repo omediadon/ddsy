@@ -7,7 +7,6 @@ use App\Application\Query\GetUserProfile\GetUserProfileQuery;
 use App\Domain\User\Exception\UserNotFoundException;
 use App\UI\Rest\Request\CreateUserRequest;
 use App\UI\Rest\Request\ListUsersRequest;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/users')]
-final class UserController extends AbstractController{
+final class UserController extends BaseController{
     public function __construct(
         private readonly MessageBusInterface $commandBus,
         private readonly MessageBusInterface $queryBus,
@@ -57,7 +56,9 @@ final class UserController extends AbstractController{
     #[Route('/{id}', methods: ['GET'])]
     public function getProfile(string $id,): JsonResponse{
         try{
-            $query   = new GetUserProfileQuery($id);
+            $currentUserId = $this->getCurrentUserId();
+
+            $query   = new GetUserProfileQuery($id, $currentUserId);
             $profile = $this->queryBus->dispatch($query);
 
             $result = $profile->last(HandledStamp::class)
